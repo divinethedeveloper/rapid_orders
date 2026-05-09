@@ -1,0 +1,53 @@
+services:
+  app:
+    build: .
+    container_name: rapidorders_app
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-rapidorders}
+      DB_USER: ${DB_USER:-rapidorders}
+      DB_PASS: ${DB_PASS:-rapidorders_pass}
+      DB_PORT: 3306
+    volumes:
+      - ./logo:/var/www/html/logo
+      - ./product_images:/var/www/html/product_images
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: rapidorders_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_secret}
+      MYSQL_DATABASE: ${DB_NAME:-rapidorders}
+      MYSQL_USER: ${DB_USER:-rapidorders}
+      MYSQL_PASSWORD: ${DB_PASS:-rapidorders_pass}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./schema/rapidorders.sql:/docker-entrypoint-initdb.d/rapidorders.sql:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "--password=${MYSQL_ROOT_PASSWORD:-root_secret}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+
+volumes:
+  db_data:

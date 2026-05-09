@@ -6,11 +6,11 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 // ── DB config ────────────────────────────────────────────────
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'rapidorders');
-define('DB_USER', 'root');       // change to your MySQL user
-define('DB_PASS', '');           // change to your MySQL password
-define('DB_PORT', 3306);
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'rapidorders');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_PORT', (int)(getenv('DB_PORT') ?: 3306));
 
 // ── Connect ──────────────────────────────────────────────────
 try {
